@@ -34,7 +34,7 @@ const createStream = async () => {
 const startPushQuery = async () => {
   try {
     await client.push(
-      'SELECT * FROM userStream EMIT CHANGES;',
+      'SELECT * FROM userStream WHERE name is not null EMIT CHANGES;',
       (data) => { console.log(data) }
     );
   } catch (error) {
@@ -60,6 +60,7 @@ const insertIntoStream = async () => {
       { "name": "Javan A", "email": "123@mail.com", "age": 40 },
       { "name": "Gerry B", "email": "123@mail.com", "age": 32 }
     ]);
+    console.log(response);
   } catch (error) {
     console.log(error);
   }
@@ -75,16 +76,26 @@ const updateAge = async () => {
   ]);
 };
 
+const updateRealAge = async () => {
+  const response = await client.insertStream('userStream', [
+    { "name": "Matty X", "email": "123@mail.com", "age": 45 },
+    { "name": "Micha S", "email": "123@mail.com", "age": 37 },
+    { "name": "Jonat L", "email": "123@mail.com", "age": 56 },
+    { "name": "Javan A", "email": "123@mail.com", "age": 51 },
+    { "name": "Gerry B", "email": "123@mail.com", "age": 67 }
+  ]);
+};
+
 const pullFromStream = async () => {
   try {
-    const data = await client.pull('SELECT * FROM userStream;');
+    const data = await client.pull('SELECT * FROM userStream WHERE name is not null;');
     console.log(data);
   } catch (error) {
     console.log(error);
   };
 };
 
-const realAgeTable = async () => {
+const createMaterializedTable = async () => {
   try {
     const data = await client.createTableAs(
       'userAgeTable',
@@ -121,10 +132,12 @@ const queryBuilderTest = async () => {
 
 // listStream();
 // createStream();
-// pullFromStream();
 // insertIntoStream();
 // startPushQuery();
 // dropStream();
-// realAgeTable();
-// pullFromMaterializedTable();
+// createMaterializedTable();
 // updateAge();
+// updateRealAge();
+
+// pullFromMaterializedTable();
+// pullFromStream();
